@@ -6,11 +6,14 @@ local interface = {
 	construct = function(folder, pattern, interval, net, chan)
 		mailfolder = folder
 		update_timeout = 60 * interval
-		network = net
-		channel = chan
+		netw = net
+		chann = chan
 		matchpattern = pattern
 
 		last_checked = os.time()
+
+		-- log for the last n messages (save them so we can mail them out on demand)
+		messages = {}
 
 		return true
 	end,
@@ -36,7 +39,7 @@ local interface = {
 					if subject then -- "Subject: " line found
 							if pcre.find(subject, matchpattern) then
 								-- post to channel
-								networks[network].send("PRIVMSG", channel, "Mail~ " .. subject)
+								networks[netw].send("PRIVMSG", chann, "Mail~ " .. subject)
 						  end
 						-- delete the file, so it gets deleted from the server
 						file:close()
@@ -52,11 +55,24 @@ local interface = {
 	end,
 
 	handlers = {
---	privmsg = function(network, sender, channel, message)
---	local mail = pcre.match(message, "^!mail ([0-9]*)$"
---	if mail then
---		-- TODO
---	end
+		privmsg = function(network, sender, channel, message)
+			if network == networks[netw] and channel == chann then
+				local msg = {t = os.time(), s = sender, m = message}
+				table.insert(messages, msg)
+			end
+
+			local mail = pcre.match(message, "^!mail ([0-9]*)$")
+			if mail then
+			minutes = tonumber(mail)
+			networks[netw].send("PRIVMSG", chann, "okay, mailing out the chatlog of the last " .. minutes .. " minutes.")
+			min_timestamp = os.time() - minutes * 60
+				for _,msg in pairs(messages) do
+					if msg.t >= min_timestamp then
+						--TODO
+					end
+				end
+			end
+		end
 	}
 }
 
