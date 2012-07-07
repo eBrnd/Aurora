@@ -36,7 +36,7 @@ local interface = {
 					if subject then -- "Subject: " line found
 							if pcre.find(subject, matchpattern) then
 								-- post to channel
-								networks[network].send("PRIVMSG", channel, "Mail~ " .. subject .. pcre.find(subject, matchpattern))
+								networks[network].send("PRIVMSG", channel, "Mail~ " .. subject)
 						  end
 						-- delete the file, so it gets deleted from the server
 						file:close()
