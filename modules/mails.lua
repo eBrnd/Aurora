@@ -22,19 +22,28 @@ local interface = {
 		-- only check once every n minutes
 		if last_checked + update_timeout < os.time() then
 			last_checked = os.time()
+			-- check email
+			-- TODO
+
 			assert(lfs.chdir(mailfolder))
 			-- look at all the files in the directory
 			for filename in lfs.dir(".") do
 				local file = io.open(filename, "r")
 				local line = file:read()
 				while line do
-					local subject = pcre.match(line, "Subject: (.*" .. matchpattern .. ".*)")
-					if subject then
-						networks[network].send("PRIVMSG", channel, "Mail! " .. subject)
+					-- look for matching subject line
+					local subject = pcre.match(line, "Subject: (.*)")
+					if subject then -- "Subject: " line found
+							if pcre.find(subject, matchpattern) then
+								-- post to channel
+								networks[network].send("PRIVMSG", channel, "Mail~ " .. subject .. pcre.find(subject, matchpattern))
+						  end
+						-- delete the file, so it gets deleted from the server
 						file:close()
 						os.remove(filename)
 						line = nil
 					else
+						-- if no matchin subject line is found, read on
 						line = file:read()
 					end
 				end
