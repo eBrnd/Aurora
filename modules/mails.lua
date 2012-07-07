@@ -1,11 +1,13 @@
-
+local lfs = require("lfs")
+local pcre = require("rex_pcre")
 
 local interface = {
-	construct = function(folder, interval, net, chan)
+	construct = function(folder, pattern, interval, net, chan)
 		mailfolder = folder
 		update_timeout = 60 * interval
 		network = net
 		channel = chan
+		matchpattern = pattern
 
 		last_checked = os.time()
 
@@ -18,14 +20,23 @@ local interface = {
 	step = function()
 		-- only check once every n minutes
 		if last_checked + update_timeout < os.time() then
-			-- TODO 1) get list of mails in folder
-			-- TODO 2) find out if mail is relevant
-			-- TODO 3) extract subject line from mail
-
-			-- construct message
-			networks[network].send("PRIVMSG", channel, "miau!!!")
+			last_checked = os.time()
+			assert(lfs.chdir(mailfolder))
+			-- look at all the files in the directory
+			for filename in lfs.dir(".") do
+				local file = io.open(filename, "r")
+				local line = file:read()
+				while line do
+					local subject = pcre.match(line, "Subject: (.*" .. matchpattern .. ".*)")
+					if subject then
+						networks[network].send("PRIVMSG", channel, "Mail: " .. subject)
+						line = nil
+					else
+						line = file:read()
+					end
+				end
+			end
 		end
-		last_checked = os.time()
 	end,
 
 	handlers = {
