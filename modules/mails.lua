@@ -1,5 +1,6 @@
 local lfs = require("lfs")
 local pcre = require("rex_pcre")
+local os = require("os")
 
 local interface = {
 	construct = function(folder, pattern, interval, net, chan)
@@ -29,7 +30,9 @@ local interface = {
 				while line do
 					local subject = pcre.match(line, "Subject: (.*" .. matchpattern .. ".*)")
 					if subject then
-						networks[network].send("PRIVMSG", channel, "Mail: " .. subject)
+						networks[network].send("PRIVMSG", channel, "Mail! " .. subject)
+						file:close()
+						os.remove(filename)
 						line = nil
 					else
 						line = file:read()
