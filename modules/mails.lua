@@ -62,6 +62,11 @@ local interface = {
 				local msg = {t = os.time(), s = sender, m = message}
 				table.insert(messages, msg)
 
+				-- limit size of message buffer to 1000 lines
+				if table.getn(messages) > 1000 do
+					table.remove(messages, 1)
+				end
+
 				local mail = pcre.match(message, "^!mail ([0-9]*)$")
 				if mail then
 					minutes = tonumber(mail)
