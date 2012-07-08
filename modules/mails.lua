@@ -63,14 +63,17 @@ local interface = {
 
 			local mail = pcre.match(message, "^!mail ([0-9]*)$")
 			if mail then
-			minutes = tonumber(mail)
-			networks[netw].send("PRIVMSG", chann, "okay, mailing out the chatlog of the last " .. minutes .. " minutes.")
-			min_timestamp = os.time() - minutes * 60
-				for _,msg in pairs(messages) do
-					if msg.t >= min_timestamp then
-						--TODO
+				minutes = tonumber(mail)
+				networks[netw].send("PRIVMSG", chann, "okay, mailing out the chatlog of the last " .. minutes .. " minutes.")
+				min_timestamp = os.time() - minutes * 60
+				mail_str = ""
+					for _,msg in pairs(messages) do
+						if msg.t >= min_timestamp then
+							-- TODO Prepend with timestamp
+							mail_str = mail_str .. "[" .. os.date("%H:%M", msg.t) .. "] " .. msg.s.nick .. ": " .. msg.m .. "\n"
+						end
 					end
-				end
+				print("would mail: " .. mail_str)
 			end
 		end
 	}
