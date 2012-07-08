@@ -63,7 +63,7 @@ local interface = {
 				table.insert(messages, msg)
 
 				-- limit size of message buffer to 1000 lines
-				if table.getn(messages) > 1000 do
+				if table.getn(messages) > 1000 then
 					table.remove(messages, 1)
 				end
 
