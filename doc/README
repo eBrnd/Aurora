@@ -22,6 +22,18 @@ Installation:
 	When using luarocks you may want to call
 	`lua --lluarocks.loader aurora.lua` instead to be able to use those.
 
+The Mailing Module:
+In order for the mail module to work, you need to set up several things.
+First, you need offlineimap. It should be configured so that when it's callled
+without parameters, it fetches mail and puts it into some directory.
+
+Make your mail module's mail directory point to the "new" folder of the
+desired mailbox, for example "~/Aurora_Mail/INBOX/new".
+
+For sending out mail, the console program "mail" is needed, so you need to
+take whatever steps necessary for that to work. For the sake of the internet,
+please choose "from" and "to" addresses that actually exist.
+
 
 Developer notes:
 	When writing your own module, please have a look at modules/dummy.lua

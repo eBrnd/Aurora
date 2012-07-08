@@ -3,12 +3,14 @@ local pcre = require("rex_pcre")
 local os = require("os")
 
 local interface = {
-	construct = function(folder, pattern, interval, net, chan)
+	construct = function(folder, pattern, interval, net, chan, from_addr, to_addr)
 		mailfolder = folder
 		update_timeout = 60 * interval
 		netw = net
 		chann = chan
 		matchpattern = pattern
+		from = from_addr
+		to = to_addr
 
 		last_checked = os.time()
 
@@ -26,7 +28,7 @@ local interface = {
 		if last_checked + update_timeout < os.time() then
 			last_checked = os.time()
 			-- check email
-			-- TODO
+			os.execute("offlineimap")
 
 			assert(lfs.chdir(mailfolder))
 			-- look at all the files in the directory
@@ -69,11 +71,18 @@ local interface = {
 				mail_str = ""
 					for _,msg in pairs(messages) do
 						if msg.t >= min_timestamp then
-							-- TODO Prepend with timestamp
 							mail_str = mail_str .. "[" .. os.date("%H:%M", msg.t) .. "] " .. msg.s.nick .. ": " .. msg.m .. "\n"
 						end
 					end
-				print("would mail: " .. mail_str)
+				local tempfilename = "mail_tmp"
+				local tempfile = assert(io.open(tempfilename, "w"))
+				assert(tempfile:write("Hello!\n\nThis is the Aurora bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
+				assert(tempfile:write(mail_str))
+				assert(tempfile:write("\n.\n"))
+				tempfile:close()
+
+				os.execute("mail -s IRC-Log. -r " .. from .. " " .. to .. " < " .. tempfilename)
+			  os.remove(tempfilename)
 			end
 		end
 	}
