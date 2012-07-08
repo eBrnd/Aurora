@@ -61,27 +61,32 @@ local interface = {
 			if network == networks[netw] and channel == chann then
 				local msg = {t = os.time(), s = sender, m = message}
 				table.insert(messages, msg)
-			end
 
-			local mail = pcre.match(message, "^!mail ([0-9]*)$")
-			if mail then
-				minutes = tonumber(mail)
-				networks[netw].send("PRIVMSG", chann, "okay, mailing out the chatlog of the last " .. minutes .. " minutes.")
-				min_timestamp = os.time() - minutes * 60
-				mail_str = ""
-					for _,msg in pairs(messages) do
-						if msg.t >= min_timestamp then
-							mail_str = mail_str .. "[" .. os.date("%H:%M", msg.t) .. "] " .. msg.s.nick .. ": " .. msg.m .. "\n"
+				local mail = pcre.match(message, "^!mail ([0-9]*)$")
+				if mail then
+					minutes = tonumber(mail)
+					networks[netw].send("PRIVMSG", chann, "okay, mailing out the chatlog of the last " .. minutes .. " minutes.")
+					min_timestamp = os.time() - minutes * 60
+					mail_str = ""
+						for _,msg in pairs(messages) do
+							if msg.t >= min_timestamp then
+								mail_str = mail_str .. "[" .. os.date("%H:%M", msg.t) .. "] " .. msg.s.nick .. ": " .. msg.m .. "\n"
+							end
 						end
-					end
-				local tempfilename = "mail_tmp"
-				local tempfile = assert(io.open(tempfilename, "w"))
-				assert(tempfile:write("Hello!\n\nThis is the Aurora bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
-				assert(tempfile:write(mail_str))
-				tempfile:close()
-
-				os.execute("mail -s IRC-Log. -r " .. from .. " " .. to .. " < " .. tempfilename)
-			  os.remove(tempfilename)
+					local tempfilename = "mail_tmp"
+					local tempfile = assert(io.open(tempfilename, "w"))
+					assert(tempfile:write("Hello!\n\nThis is the Aurora bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
+					assert(tempfile:write(mail_str))
+					tempfile:close()
+	
+					os.execute("mail -s IRC-Log. -r " .. from .. " " .. to .. " < " .. tempfilename)
+				  os.remove(tempfilename)
+				end
+	
+				local help = pcre.match(message, "^!help mail(s?)")
+				if help then
+					networks[netw].send("PRIVMSG", chann, "Mail module: \"mail n\" sends out the chatlog of the last n minutes to " .. to .. ".")
+				end
 			end
 		end
 	}
