@@ -78,7 +78,6 @@ local interface = {
 				local tempfile = assert(io.open(tempfilename, "w"))
 				assert(tempfile:write("Hello!\n\nThis is the Aurora bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
 				assert(tempfile:write(mail_str))
-				assert(tempfile:write("\n.\n"))
 				tempfile:close()
 
 				os.execute("mail -s IRC-Log. -r " .. from .. " " .. to .. " < " .. tempfilename)
