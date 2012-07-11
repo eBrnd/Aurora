@@ -58,7 +58,7 @@ local interface = {
 						os.remove(filename)
 						line = nil
 					else
-						-- if no matchin subject line is found, read on
+						-- if no matching subject line is found, read on
 						line = file:read()
 					end
 				end
@@ -90,11 +90,11 @@ local interface = {
 						end
 					local tempfilename = "mail_tmp"
 					local tempfile = assert(io.open(tempfilename, "w"))
-					assert(tempfile:write("Hello!\n\nThis is the Aurora bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
+					assert(tempfile:write("Hello!\n\nThis is " .. network.nick() .. ", the bot from " .. chann .. ". " .. sender.nick .. " has requested me to send the chatlog of the last " .. minutes .. " minutes to the mailing list. Here it is:\n\n"))
 					assert(tempfile:write(mail_str))
 					tempfile:close()
 	
-					os.execute("mail -s IRC-Log. -r " .. from .. " " .. to .. " < " .. tempfilename)
+					os.execute("mail -s IRC-Log -r " .. from .. " " .. to .. " < " .. tempfilename)
 				  os.remove(tempfilename)
 				end
 	
