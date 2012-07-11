@@ -35,14 +35,24 @@ local interface = {
 			for filename in lfs.dir(".") do
 				local file = io.open(filename, "r")
 				local line = file:read()
+				local sender = nil -- declare here so it's persistent for each mail
 				while line do
+					-- look for sender and subject line
+					if not sender then -- stop looking for it once it matches
+						sender = pcre.match(line, "From: (.*) <.*>")
+					end
 					-- look for matching subject line
 					local subject = pcre.match(line, "Subject: (.*)")
 					if subject then -- "Subject: " line found
 							if pcre.find(subject, matchpattern) then
 								-- post to channel
-								networks[netw].send("PRIVMSG", chann, "Mail~ " .. subject)
-						  end
+								if sender then
+									line_to_send = "Mail~ " .. subject .. " (from " .. sender .. ")"
+								else
+									line_to_send = "Mail~ " .. subject
+								end
+								networks[netw].send("PRIVMSG", chann, line_to_send)
+							end
 						-- delete the file, so it gets deleted from the server
 						file:close()
 						os.remove(filename)
