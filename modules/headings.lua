@@ -12,7 +12,7 @@ local interface = {
 
   handlers = {
     privmsg = function (network, sender, channel, message)
-    local link = pcre.match(message,"(http://[^\\s,]+)")
+    local link = pcre.match(message,"(https?://[^\\s,]+)")
     if not link then
         link = pcre.match(message,"(www\\.[^\\s,]+)")
         if link then
