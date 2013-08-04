@@ -1,5 +1,4 @@
 local pcre = require("rex_pcre")
-local http = require("socket.http")
 
 local interface = {
 
@@ -20,19 +19,19 @@ local interface = {
         end
       end
     if link then
-			-- dump link to file, so we can use wget to grab it
-			-- (because http.request would download the whole thing,
-			-- filling up our memory if it's a big file...)
-			local linkfile = io.open("headings-link.tmp", "w")
-			linkfile:write(link)
-			linkfile:close()
-			os.execute("wget -i headings-link.tmp -T 7 -O - | head -c 2048 > headings-content.tmp")
-			local contentsfile = io.open("headings-content.tmp", "r")
-			local page = contentsfile:read("*a")
-			contentsfile:close()
-			-- remove the temporary files
-			os.remove("headings-link.tmp")
-			os.remove("headings-content.tmp")
+      -- dump link to file, so we can use wget to grab it
+      -- (because http.request would download the whole thing,
+      -- filling up our memory if it's a big file...)
+      local linkfile = io.open("headings-link.tmp", "w")
+      linkfile:write(link)
+      linkfile:close()
+      os.execute("wget -i headings-link.tmp -T 7 -O - | head -c 2048 > headings-content.tmp")
+      local contentsfile = io.open("headings-content.tmp", "r")
+      local page = contentsfile:read("*a")
+      contentsfile:close()
+      -- remove the temporary files
+      os.remove("headings-link.tmp")
+      os.remove("headings-content.tmp")
       -- page = string.sub(http.request(link), 1, 2048)
       if page then
         header = pcre.match(page,"<title[^>]*>([^<]+)",1,"i")
