@@ -111,7 +111,11 @@ config = {
 		morgen = { -- Greets in the morning
 			file = "modules/morgen.lua",
 			parameters = {{xinutec = {"#test"}}}
-		}
+		},
+    raumstatus = {
+      file = "modules/raumstatus.lua",
+      parameters = { 1, "hackint", "#aurora-test", "http://chaos-inkl.de/raumstatus.php" }
+    },
 	},
 	
 	-- These should be self-explanatory for everybody who even remotely knows the IRC.
