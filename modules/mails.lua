@@ -2,7 +2,7 @@ local lfs = require("lfs")
 local pcre = require("rex_pcre")
 local os = require("os")
 
-local interface = { hadlers = {} }
+local interface = { handlers = {} }
 
 local mails = { -- module variables
   mailfolder = nil,
@@ -32,10 +32,10 @@ function interface.construct(folder, pattern, interval, net, chan, from_addr, to
 	mails.messages = {}
 
 	return true
-end,
+end
 
 function interface.destruct()
-end,
+end
 
 function interface.step()
 	-- only check once every n minutes
@@ -78,7 +78,7 @@ function interface.step()
 			end
 		end
 	end
-end,
+end
 
 function interface.handlers.privmsg(network, sender, channel, message)
 	if network == networks[mails.netw] and channel == mails.chann then
