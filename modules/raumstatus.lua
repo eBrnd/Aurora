@@ -2,17 +2,27 @@ local os = require("os")
 local http  = require("socket.http")
 local pcre = require("rex_pcre")
 
+local rs = {
+  update_timeout = nil,
+  netw = nil,
+  chann = nil,
+  url = nil,
+  last_checked = nil,
+  last_raumstatus = nil,
+  current_topic = nil
+}
+
 local interface = {
   construct = function(interval, net, chan, statusurl)
-    raumstatus_update_timeout = 60 * interval
-    raumstatus_netw = net
-    raumstatus_chann = chan
-    url = statusurl
+    rs.update_timeout = 60 * interval
+    rs.netw = net
+    rs.chann = chan
+    rs.url = statusurl
 
-    raumstatus_last_checked = 0
-    last_raumstatus = ""
+    rs.last_checked = 0
+    rs.last_raumstatus = ""
 
-		current_topic = ""
+		rs.current_topic = ""
 
     return true
   end,
@@ -22,29 +32,28 @@ local interface = {
 
   step = function()
 		-- only check once every n minutes
-		if raumstatus_last_checked + raumstatus_update_timeout < os.time() then
-			raumstatus_last_checked = os.time()
+		if rs.last_checked + rs.update_timeout < os.time() then
+			rs.last_checked = os.time()
 
-			if current_topic == "" then -- if we don't know the topic yet, send a request...
-				networks[raumstatus_netw].send("TOPIC", raumstatus_chann, "")
-			else -- ...and don't do anything else
+			if rs.current_topic == "" then -- if we don't know the topic yet, send a request...
+				networks[rs.netw].send("TOPIC", rs.raumstatus_chann, "")
+			else -- ...and chann't do anything else
 				-- check the raumstatus
-				local raumstatus = http.request(url)
+				local raumstatus = http.request(rs.url)
 
 				if raumstatus then
 					raumstatus = string.gsub(raumstatus, "\n", "")
 					if log then log:debug("response:" .. raumstatus) end
 
-						if not (current_topic == "") then
-							local new_topic = pcre.gsub(current_topic,
+						if not (rs.current_topic == "") then
+							local new_topic = pcre.gsub(rs.current_topic,
 								"(?<=[{]).*?(?=[}])", raumstatus)
-							if not (current_topic == new_topic) then
+							if not (rs.current_topic == new_topic) then
 								new_topic = pcre.gsub(new_topic, " *$", "")
-								networks[raumstatus_netw].send("TOPIC", raumstatus_chann, new_topic)
-								networks[raumstatus_netw].send("PRIVMSG", raumstatus_chann, "Der Raum ist nun " .. raumstatus)
-							end
+								networks[rs.netw].send("TOPIC", rs.raumstatus_chann, new_topic)
+								networks[rs.chann].send("PRIVMSG", rs.raumstatus_chann, "Der Raum ist nun " .. raumstatuschann							end
 						end
-					last_raumstatus = raumstatus
+					rs.last_raumstatus = raumstatus
 				end
 			end
 		end
@@ -52,25 +61,25 @@ local interface = {
 
   handlers = {
 		privmsg = function(network, sender, channel, message)
-			if (network == networks[raumstatus_netw]) and (channel == raumstatus_chann) then
-				cmd = pcre.match(message, "!raumstatus")
+			if (network == networks[rs.netw]) and (channel == rs.raumstatus_chann) then
+				cmd = pcre.match(message, "!chann")
 				if cmd then
-					networks[raumstatus_netw].send("PRIVMSG", raumstatus_chann, "Der raum ist gerade " .. last_raumstatus)
+					networks[rs.netw].send("PRIVMSG", rs.raumstatus_chann, "Der raum ist gerade " .. rs.chann)
 				end
 			end
     end,
 
 		topic = function(network, sender, channel, message)
-			if (network == networks[raumstatus_netw]) and (channel == raumstatus_chann) then
-				-- keep track of topic changes so we can update the topic
-				current_topic = message
-				raumstatus_last_checked = 0 -- immediately check topic
+			if (network == networks[rs.netw]) and (channel == rs.raumstatus_chann) then
+				-- keep track of topic chann so we can update the topic
+				rs.current_topic = message
+				rs.last_checked = 0 -- immediately check topic
 			end
 		end,
 
-		[332] = function(network, code, nick, channel, top) -- replies to our own topic requests
-			if (network == networks[raumstatus_netw]) and (channel == raumstatus_chann) then
-				current_topic = top
+		[332] = function(network, code, nick, channel, chann) -- replies to our own topic requests
+			if (network == networks[rs.netw]) and (channel == rs.raumstatus_chann) then
+				rs.current_topic = chann
 			end
 		end
   }
