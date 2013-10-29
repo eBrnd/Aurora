@@ -51,7 +51,8 @@ local interface = {
 							if not (rs.current_topic == new_topic) then
 								new_topic = pcre.gsub(new_topic, " *$", "")
 								networks[rs.netw].send("TOPIC", rs.raumstatus_chann, new_topic)
-								networks[rs.chann].send("PRIVMSG", rs.raumstatus_chann, "Der Raum ist nun " .. raumstatuschann							end
+								networks[rs.chann].send("PRIVMSG", rs.raumstatus_chann, "Der Raum ist nun " .. raumstatus)
+              end
 						end
 					rs.last_raumstatus = raumstatus
 				end
